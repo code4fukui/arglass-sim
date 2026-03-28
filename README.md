@@ -29,15 +29,19 @@ The current implementation renders the HUD into a fixed `640x480` canvas, then m
 
 Serve from `localhost` or HTTPS. Do not open the file directly.
 
+Use `liveserver` from Code for FUKUI:
+
+- https://github.com/code4fukui/liveserver
+
 ```bash
 cd /Users/fukuno/data/js/webvr/arglass-sim
-python3 -m http.server 8000
+liveserver
 ```
 
 Then open:
 
 ```text
-http://localhost:8000
+http://localhost:8080
 ```
 
 ## WebXR Notes

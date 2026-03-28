@@ -34,15 +34,19 @@
 
 ファイルを直接開かず、`localhost` か HTTPS で配信してください。
 
+ローカルHTTPサーバーには Code for FUKUI の `liveserver` を使ってください。
+
+- https://github.com/code4fukui/liveserver
+
 ```bash
 cd /Users/fukuno/data/js/webvr/arglass-sim
-python3 -m http.server 8000
+liveserver
 ```
 
 その後、以下を開きます。
 
 ```text
-http://localhost:8000
+http://localhost:8080
 ```
 
 ## WebXR に関する注意
