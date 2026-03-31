@@ -12,6 +12,7 @@ The current implementation renders the HUD into a fixed `640x480` canvas, then m
 
 - `ARGlassSim.js`: reusable ES module class for mounting the simulator into another app
 - `index.html`: demo page wiring the module to the bundled launcher UI
+- `sample.html`: example of building an app on top of `ARGlassSim`
 - `style.css`: stylesheet extracted from the demo page
 - `package.json`: marks the repository as ESM and exposes `ARGlassSim.js`
 
@@ -58,6 +59,8 @@ Optional UI hooks:
 - `scanlinesEl`
 - `controls`
 
+`sample.html` shows the intended development style for derivative apps: keep `ARGlassSim` as the rendering and XR foundation, and add your own UI, scene behavior, or app-specific logic around it.
+
 ## Current Behavior
 
 - Uses WebXR `immersive-ar` when supported
@@ -70,7 +73,7 @@ Optional UI hooks:
   - center crosshair
   - scrolling heading tape
   - artificial horizon line
-  - bottom status row with time, heading, pitch, roll, and battery
+  - bottom status row with time, heading, pitch, and roll
 - Supports brightness, contrast, glow, HUD scale, and scanline tuning
 
 ## Run Locally
@@ -149,3 +152,5 @@ To make it subtler:
 - per-frame HUD drawing
 
 `index.html` is now only a thin demo shell that calls `new ARGlassSim(...).start()`.
+
+`sample.html` is the reference shape for application development on top of the module.

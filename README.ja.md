@@ -12,6 +12,7 @@
 
 - `ARGlassSim.js`: 他のアプリから利用できる再利用可能な ES モジュールクラス
 - `index.html`: 付属ランチャー UI をこのモジュールへ接続するデモページ
+- `sample.html`: `ARGlassSim` を使った応用アプリ開発例
 - `style.css`: デモページから切り出したスタイルシート
 - `package.json`: ESM としての公開設定
 
@@ -58,6 +59,8 @@ sim.setAppearance({ glow: 0.6, contrast: 1.3 });
 - `scanlinesEl`
 - `controls`
 
+`sample.html` は、このモジュールを土台にして応用アプリを開発する想定のサンプルです。`ARGlassSim` に描画と XR の基盤を任せ、その上に独自 UI やアプリ固有ロジックを重ねる形を想定しています。
+
 ## 現在の挙動
 
 - 対応環境では WebXR `immersive-ar` を使用
@@ -75,7 +78,6 @@ sim.setAppearance({ glow: 0.6, contrast: 1.3 });
     - ヘディング
     - ピッチ
     - ロール
-    - バッテリー
 - 明るさ、コントラスト、グロー、HUDスケール、スキャンラインを調整可能
 
 ## ローカル実行
@@ -154,3 +156,5 @@ http://localhost:8080
 - 毎フレームのHUD描画
 
 `index.html` は `new ARGlassSim(...).start()` を呼ぶための薄いデモ用シェルです。
+
+`sample.html` は、その先の応用アプリ実装のたたき台として使える構成例です。
