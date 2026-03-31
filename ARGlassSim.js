@@ -24,15 +24,18 @@ export class ARGlassSim {
     this.touchHint = touchHint;
     this.xrButtonHost = xrButtonHost;
     this.scanlinesEl = scanlinesEl;
-    this.controls = {
-      brightness: controls.brightness ?? null,
-      contrast: controls.contrast ?? null,
-      glow: controls.glow ?? null,
-      lineThickness: controls.lineThickness ?? null,
-      scanlines: controls.scanlines ?? null,
-      startSimButton: controls.startSimButton ?? null,
-    };
     this.valueLabelRoot = valueLabelRoot;
+
+    const controlsRoot = this.valueLabelRoot?.getElementById ? this.valueLabelRoot : document;
+    const resolvedControls = controls ?? {};
+    this.controls = {
+      brightness: resolvedControls.brightness ?? controlsRoot.getElementById('brightness') ?? null,
+      contrast: resolvedControls.contrast ?? controlsRoot.getElementById('contrast') ?? null,
+      glow: resolvedControls.glow ?? controlsRoot.getElementById('glow') ?? null,
+      lineThickness: resolvedControls.lineThickness ?? controlsRoot.getElementById('lineThickness') ?? null,
+      scanlines: resolvedControls.scanlines ?? controlsRoot.getElementById('scanlineToggle') ?? null,
+      startSimButton: resolvedControls.startSimButton ?? controlsRoot.getElementById('startSimButton') ?? null,
+    };
 
     this.appearance = {
       brightness: 1.05,
@@ -69,7 +72,6 @@ export class ARGlassSim {
     this.fallbackModeActive = false;
     this.xrSupported = false;
     this.rendererCanvasFilter = '';
-    this.fakeBatteryLevel = 0.82;
     this.headingReferenceDeg = null;
     this.disposed = false;
 
@@ -411,7 +413,6 @@ export class ARGlassSim {
     hh,
     mm,
     ss,
-    fakeBatteryLevel,
   }) {
     const bottomY = 410;
     const tapeY = 118;
@@ -419,6 +420,11 @@ export class ARGlassSim {
     const tapeRight = 548;
     const pixelsPerDegree = 3.4;
     const hudCenterX = this.hudConfig.width / 2;
+    const bottomGap = 12;
+    const timeBoxWidth = 160;
+    const statusBoxWidth = 132;
+    const bottomRowWidth = timeBoxWidth + statusBoxWidth * 3 + bottomGap * 3;
+    const bottomStartX = Math.round((this.hudConfig.width - bottomRowWidth) / 2);
 
     ctx.clearRect(0, 0, this.hudConfig.width, this.hudConfig.height);
 
@@ -454,13 +460,22 @@ export class ARGlassSim {
     this.drawHudLine(ctx, 42, -18, 42, 18, lineWidth, palette);
     ctx.restore();
 
-    this.drawHudBox(ctx, 12, bottomY, 148, 44, `${hh}:${mm}:${ss}`, palette, 0.88);
-    this.drawHudBox(ctx, 168, bottomY, 116, 44, `HDG ${String(displayHeadingDeg).padStart(3, '0')}`, palette, 0.92);
+    this.drawHudBox(ctx, bottomStartX, bottomY, timeBoxWidth, 44, `${hh}:${mm}:${ss}`, palette, 0.88);
     this.drawHudBox(
       ctx,
-      292,
+      bottomStartX + timeBoxWidth + bottomGap,
       bottomY,
-      116,
+      statusBoxWidth,
+      44,
+      `HDG ${String(displayHeadingDeg).padStart(3, '0')}`,
+      palette,
+      0.92
+    );
+    this.drawHudBox(
+      ctx,
+      bottomStartX + timeBoxWidth + bottomGap + statusBoxWidth + bottomGap,
+      bottomY,
+      statusBoxWidth,
       44,
       `PIT ${pitchDeg >= 0 ? '+' : '-'}${String(Math.abs(pitchDeg)).padStart(2, '0')}`,
       palette,
@@ -468,15 +483,14 @@ export class ARGlassSim {
     );
     this.drawHudBox(
       ctx,
-      416,
+      bottomStartX + timeBoxWidth + bottomGap + (statusBoxWidth + bottomGap) * 2,
       bottomY,
-      116,
+      statusBoxWidth,
       44,
       `ROL ${rollDeg >= 0 ? '+' : '-'}${String(Math.abs(rollDeg)).padStart(2, '0')}`,
       palette,
       0.92
     );
-    this.drawHudBox(ctx, 540, bottomY, 88, 44, `BAT ${(fakeBatteryLevel * 100).toFixed(0)}%`, palette, 0.72);
   }
 
   updateHud() {
@@ -498,7 +512,6 @@ export class ARGlassSim {
     const hh = String(now.getHours()).padStart(2, '0');
     const mm = String(now.getMinutes()).padStart(2, '0');
     const ss = String(now.getSeconds()).padStart(2, '0');
-    this.fakeBatteryLevel = 0.78 + Math.sin(this.timeState.elapsed * 0.12) * 0.04;
 
     const ctx = this.hud.ctx;
     const palette = this.computeGreenPalette();
@@ -516,7 +529,6 @@ export class ARGlassSim {
       hh,
       mm,
       ss,
-      fakeBatteryLevel: this.fakeBatteryLevel,
     });
 
     this.hud.mesh.position.set(0, 0, -this.hudConfig.distance);
