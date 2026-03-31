@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Green Monochrome WebXR AR Simulator</title>
+<link rel="stylesheet" href="./style.css" />
+<!--
+  WebXR support note:
+  - immersive-ar usually requires a supported mobile browser/device, HTTPS or localhost, and camera permission.
+  - Camera passthrough is only available in a real AR-capable WebXR session.
+  - On desktop or unsupported devices, this page falls back to a non-AR simulator with the same HUD and green monochrome styling.
+-->
+</head>
+<body>
+
+<div id="app"></div>
+<div id="scanlines"></div>
+<div id="vignette"></div>
+
+<section id="launcher" class="hidden">
+  <h1>Monochrome AR HUD</h1>
+  <p>Use WebXR AR when available, or start the fallback simulator.</p>
+  <div class="buttons">
+    <button id="startSimButton">Start Simulator</button>
+    <div id="xrButtonHost"></div>
+  </div>
+</section>
+<div id="touchHint">Drag to look around.</div>
+
+<script type="module">
+import { ARGlassSim } from './ARGlassSim.js';
+import * as THREE from 'https://unpkg.com/three@0.164.1/build/three.module.js';
+import { ARButton } from 'https://unpkg.com/three@0.164.1/examples/jsm/webxr/ARButton.js';
+
+const app = document.getElementById('app');
+const launcher = document.getElementById('launcher');
+const touchHint = document.getElementById('touchHint');
+const xrButtonHost = document.getElementById('xrButtonHost');
+const scanlinesEl = document.getElementById('scanlines');
+
+const controls = null;
+
+class ARGlassSimSimple extends ARGlassSim {
+  drawHudFrame({
+    ctx,
+    palette,
+    lineWidth,
+    relativeHeadingDeg,
+    displayHeadingDeg,
+    pitch,
+    pitchDeg,
+    roll,
+    rollDeg,
+    hh,
+    mm,
+    ss
+  }) {
+    const w = this.hudConfig.width;
+    const h = this.hudConfig.height;
+    ctx.clearRect(0, 0, w, h);
+    const color = this.hudColorString(palette.mesh, 0.22);
+
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.fillRect(0, 0, 640, 480);
+
+    const gap = 5;
+    ctx.beginPath();
+    ctx.moveTo(gap, gap);
+    ctx.lineTo(w - gap * 2, h - gap * 2);
+    ctx.stroke();
+  }
+};
+
+const sim = new ARGlassSimSimple({
+  THREE,
+  ARButton,
+  mount: app,
+  launcher,
+  touchHint,
+  xrButtonHost,
+  scanlinesEl,
+  controls,
+  valueLabelRoot: document,
+});
+
+sim.start();
+</script>
+</body>
+</html>
