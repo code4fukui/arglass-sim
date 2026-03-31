@@ -2,13 +2,61 @@
 
 [English README](./README.md)
 
-レトロなグリーン単色ARグラス風の、単一HTMLファイル構成の WebXR AR HUD シミュレータです。
+レトロなグリーン単色ARグラス風の WebXR AR HUD シミュレータです。
+
+現在はシミュレータ本体を `ARGlassSim` という ES モジュールクラスとしても切り出してあり、他のリポジトリから import して利用できます。
 
 現在の実装では、HUDを固定 `640x480` のCanvasに描画し、そのCanvasを視点前方 `1.5m` に置いた板へ貼り付けています。これにより、意図的に低解像度の見え方を維持しつつ、以前の3Dラインオブジェクト方式より軽量に動作します。
 
 ## ファイル
 
-- `index.html`: アプリ全体を含む単一の ES module HTML
+- `ARGlassSim.js`: 他のアプリから利用できる再利用可能な ES モジュールクラス
+- `index.html`: 付属ランチャー UI をこのモジュールへ接続するデモページ
+- `style.css`: デモページから切り出したスタイルシート
+- `package.json`: ESM としての公開設定
+
+## ES モジュールとして使う
+
+```js
+import * as THREE from 'three';
+import { ARButton } from 'three/examples/jsm/webxr/ARButton.js';
+import { ARGlassSim } from '../arglass-sim/ARGlassSim.js';
+
+const sim = new ARGlassSim({
+  THREE,
+  ARButton,
+  mount: document.getElementById('app'),
+  launcher: document.getElementById('launcher'),
+  touchHint: document.getElementById('touchHint'),
+  xrButtonHost: document.getElementById('xrButtonHost'),
+  scanlinesEl: document.getElementById('scanlines'),
+  controls: {
+    brightness: document.getElementById('brightness'),
+    contrast: document.getElementById('contrast'),
+    glow: document.getElementById('glow'),
+    lineThickness: document.getElementById('lineThickness'),
+    scanlines: document.getElementById('scanlineToggle'),
+    startSimButton: document.getElementById('startSimButton'),
+  },
+});
+
+sim.start();
+sim.setAppearance({ glow: 0.6, contrast: 1.3 });
+```
+
+必須オプション:
+
+- `mount`
+- `THREE`
+
+任意の UI 関連:
+
+- `ARButton`
+- `launcher`
+- `touchHint`
+- `xrButtonHost`
+- `scanlinesEl`
+- `controls`
 
 ## 現在の挙動
 
@@ -97,10 +145,12 @@ http://localhost:8080
 
 ## 構成
 
-`index.html` は主に以下の単位で構成されています。
+`ARGlassSim.js` は主に以下の単位で構成されています。
 
 - XR / セッション初期化
 - HUD Canvas の生成
 - グリーン単色表示の制御
 - フォールバックシミュレータ
 - 毎フレームのHUD描画
+
+`index.html` は `new ARGlassSim(...).start()` を呼ぶための薄いデモ用シェルです。

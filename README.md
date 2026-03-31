@@ -2,13 +2,61 @@
 
 [日本語版 README](./README.ja.md)
 
-Single-file WebXR AR HUD simulator styled like retro green monochrome AR glasses.
+Retro green monochrome WebXR AR HUD simulator.
+
+The simulator core is also exposed as an ES module class, `ARGlassSim`, so another repository can import it and mount it into its own DOM.
 
 The current implementation renders the HUD into a fixed `640x480` canvas, then maps that canvas onto a plane placed `1.5m` in front of the viewer. This keeps the display intentionally low-resolution and lighter to render than the earlier 3D line-object approach.
 
 ## Files
 
-- `index.html`: the full app in one ES module HTML file
+- `ARGlassSim.js`: reusable ES module class for mounting the simulator into another app
+- `index.html`: demo page wiring the module to the bundled launcher UI
+- `style.css`: stylesheet extracted from the demo page
+- `package.json`: marks the repository as ESM and exposes `ARGlassSim.js`
+
+## Import As A Module
+
+```js
+import * as THREE from 'three';
+import { ARButton } from 'three/examples/jsm/webxr/ARButton.js';
+import { ARGlassSim } from '../arglass-sim/ARGlassSim.js';
+
+const sim = new ARGlassSim({
+  THREE,
+  ARButton,
+  mount: document.getElementById('app'),
+  launcher: document.getElementById('launcher'),
+  touchHint: document.getElementById('touchHint'),
+  xrButtonHost: document.getElementById('xrButtonHost'),
+  scanlinesEl: document.getElementById('scanlines'),
+  controls: {
+    brightness: document.getElementById('brightness'),
+    contrast: document.getElementById('contrast'),
+    glow: document.getElementById('glow'),
+    lineThickness: document.getElementById('lineThickness'),
+    scanlines: document.getElementById('scanlineToggle'),
+    startSimButton: document.getElementById('startSimButton'),
+  },
+});
+
+sim.start();
+sim.setAppearance({ glow: 0.6, contrast: 1.3 });
+```
+
+Required options:
+
+- `mount`
+- `THREE`
+
+Optional UI hooks:
+
+- `ARButton`
+- `launcher`
+- `touchHint`
+- `xrButtonHost`
+- `scanlinesEl`
+- `controls`
 
 ## Current Behavior
 
@@ -92,10 +140,12 @@ To make it subtler:
 
 ## Structure
 
-`index.html` is organized around:
+`ARGlassSim.js` is organized around:
 
 - XR/session setup
 - HUD canvas creation
 - green monochrome appearance control
 - fallback simulator mode
 - per-frame HUD drawing
+
+`index.html` is now only a thin demo shell that calls `new ARGlassSim(...).start()`.

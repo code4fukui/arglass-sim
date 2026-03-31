@@ -1,0 +1,9 @@
+{
+  "name": "arglass-sim",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./ARGlassSim.js",
+    "./ARGlassSim": "./ARGlassSim.js"
+  }
+}
