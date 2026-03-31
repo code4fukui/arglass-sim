@@ -125,6 +125,7 @@ export class ARGlassSim {
     this.setupControls();
     this.setupXRButton();
     this.applyMonochromeAppearance();
+    this.onResize();
     this.renderer.setAnimationLoop(this.boundRenderFrame);
     window.addEventListener('resize', this.boundOnResize);
     this.launcher?.classList.remove('hidden');
@@ -414,17 +415,20 @@ export class ARGlassSim {
     mm,
     ss,
   }) {
-    const bottomY = 410;
     const tapeY = 118;
     const tapeLeft = 92;
     const tapeRight = 548;
     const pixelsPerDegree = 3.4;
     const hudCenterX = this.hudConfig.width / 2;
+    const hudWidth = this.hudConfig.width;
     const bottomGap = 12;
     const timeBoxWidth = 160;
     const statusBoxWidth = 132;
     const bottomRowWidth = timeBoxWidth + statusBoxWidth * 3 + bottomGap * 3;
-    const bottomStartX = Math.round((this.hudConfig.width - bottomRowWidth) / 2);
+    const bottomBoxHeight = 44;
+    const horizontalMargin = 12;
+    const stackedLayout = bottomRowWidth > hudWidth - horizontalMargin * 2;
+    const bottomY = stackedLayout ? 360 : 410;
 
     ctx.clearRect(0, 0, this.hudConfig.width, this.hudConfig.height);
 
@@ -460,13 +464,54 @@ export class ARGlassSim {
     this.drawHudLine(ctx, 42, -18, 42, 18, lineWidth, palette);
     ctx.restore();
 
-    this.drawHudBox(ctx, bottomStartX, bottomY, timeBoxWidth, 44, `${hh}:${mm}:${ss}`, palette, 0.88);
+    if (stackedLayout) {
+      const rowWidth = statusBoxWidth * 2 + bottomGap;
+      const rowStartX = Math.round((hudWidth - rowWidth) / 2);
+      this.drawHudBox(
+        ctx,
+        rowStartX,
+        bottomY,
+        statusBoxWidth,
+        bottomBoxHeight,
+        `HDG ${String(displayHeadingDeg).padStart(3, '0')}`,
+        palette,
+        0.92
+      );
+      this.drawHudBox(
+        ctx,
+        rowStartX + statusBoxWidth + bottomGap,
+        bottomY,
+        statusBoxWidth,
+        bottomBoxHeight,
+        `PIT ${pitchDeg >= 0 ? '+' : '-'}${String(Math.abs(pitchDeg)).padStart(2, '0')}`,
+        palette,
+        0.92
+      );
+
+      const secondRowWidth = timeBoxWidth + statusBoxWidth + bottomGap;
+      const secondRowStartX = Math.round((hudWidth - secondRowWidth) / 2);
+      this.drawHudBox(ctx, secondRowStartX, bottomY + bottomBoxHeight + bottomGap, timeBoxWidth, bottomBoxHeight, `${hh}:${mm}:${ss}`, palette, 0.88);
+      this.drawHudBox(
+        ctx,
+        secondRowStartX + timeBoxWidth + bottomGap,
+        bottomY + bottomBoxHeight + bottomGap,
+        statusBoxWidth,
+        bottomBoxHeight,
+        `ROL ${rollDeg >= 0 ? '+' : '-'}${String(Math.abs(rollDeg)).padStart(2, '0')}`,
+        palette,
+        0.92
+      );
+      return;
+    }
+
+    const bottomStartX = Math.round((hudWidth - bottomRowWidth) / 2);
+    this.drawHudBox(ctx, bottomStartX, bottomY, timeBoxWidth, bottomBoxHeight, `${hh}:${mm}:${ss}`, palette, 0.88);
     this.drawHudBox(
       ctx,
       bottomStartX + timeBoxWidth + bottomGap,
       bottomY,
       statusBoxWidth,
-      44,
+      bottomBoxHeight,
       `HDG ${String(displayHeadingDeg).padStart(3, '0')}`,
       palette,
       0.92
@@ -476,7 +521,7 @@ export class ARGlassSim {
       bottomStartX + timeBoxWidth + bottomGap + statusBoxWidth + bottomGap,
       bottomY,
       statusBoxWidth,
-      44,
+      bottomBoxHeight,
       `PIT ${pitchDeg >= 0 ? '+' : '-'}${String(Math.abs(pitchDeg)).padStart(2, '0')}`,
       palette,
       0.92
@@ -486,7 +531,7 @@ export class ARGlassSim {
       bottomStartX + timeBoxWidth + bottomGap + (statusBoxWidth + bottomGap) * 2,
       bottomY,
       statusBoxWidth,
-      44,
+      bottomBoxHeight,
       `ROL ${rollDeg >= 0 ? '+' : '-'}${String(Math.abs(rollDeg)).padStart(2, '0')}`,
       palette,
       0.92
@@ -577,7 +622,13 @@ export class ARGlassSim {
   }
 
   onResize() {
-    this.camera.aspect = window.innerWidth / window.innerHeight;
+    const aspect = window.innerWidth / window.innerHeight;
+    const widthFitVerticalFovDeg = this.THREE.MathUtils.radToDeg(
+      2 * Math.atan((this.hudWorldWidth * 0.5) / (this.hudConfig.distance * aspect))
+    );
+
+    this.camera.aspect = aspect;
+    this.camera.fov = Math.max(this.hudVerticalFovDeg, widthFitVerticalFovDeg);
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
