@@ -244,7 +244,7 @@ export class ARGlassSim {
     const contrastCss = (0.85 + this.appearance.contrast * 0.35).toFixed(2);
     const dropShadowPx = Math.round(this.appearance.glow * 12);
     this.rendererCanvasFilter =
-      `brightness(${brightnessCss}) contrast(${contrastCss}) saturate(0) ` +
+      `brightness(${brightnessCss}) contrast(${contrastCss}) ` +
       `drop-shadow(0 0 ${dropShadowPx}px rgba(90,255,140,0.35))`;
     this.renderer.domElement.style.filter = this.fallbackModeActive ? this.rendererCanvasFilter : '';
   }
