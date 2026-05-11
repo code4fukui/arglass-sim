@@ -1,6 +1,6 @@
 # Green Monochrome WebXR AR HUD
 
-[日本語版 README](./README.ja.md)
+> 日本語のREADMEはこちらです: [README.ja.md](README.ja.md)
 
 Retro green monochrome WebXR AR HUD simulator.
 
